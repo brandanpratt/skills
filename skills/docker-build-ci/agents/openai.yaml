@@ -1,0 +1,6 @@
+interface:
+  display_name: Docker Build in CI
+  short_description: Build and publish container images from GitHub Actions safely and fast.
+  default_prompt: Use this skill when creating or reviewing a GitHub Actions workflow that builds or publishes container images.
+policy:
+  allow_implicit_invocation: true

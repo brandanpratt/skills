@@ -1,0 +1,30 @@
+schema: v1
+id: docker-build-ci
+version: 0.1.0
+title: Docker Build in CI
+description: Build and publish container images from GitHub Actions — GitHub Builder or docker/* actions, pinning, permissions, registry auth, caching, multi-platform, and attestations.
+owns:
+  - github-actions-docker-workflows
+  - ci-image-publishing
+use_when:
+  - The main artifact being created, edited, or reviewed is a GitHub Actions workflow that builds, tests, or pushes a container image.
+  - The user wants to publish images to Docker Hub, GHCR, or another registry from CI.
+  - The user wants multi-platform images, CI build caching, SBOM, or provenance attestations in GitHub Actions.
+  - A Docker build fails or misbehaves only in GitHub Actions (cache export errors, missing credentials on pull requests, missing attestations).
+do_not_use_when:
+  - The main task is writing or optimizing the Dockerfile itself.
+  - The project has no Docker setup yet and needs a first-pass scaffold.
+  - The CI system is not GitHub Actions.
+  - The task is deploying an already-built image rather than building and publishing it.
+delegates_to:
+  - docker-build-strategies
+  - docker-project-foundations
+  - docker-compose-patterns
+  - docker-destructive-guardrails
+  - docker-docs
+interface:
+  display_name: Docker Build in CI
+  short_description: Build and publish container images from GitHub Actions safely and fast.
+  default_prompt: Use this skill when creating or reviewing a GitHub Actions workflow that builds or publishes container images.
+policy:
+  allow_implicit_invocation: true

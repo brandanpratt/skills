@@ -91,7 +91,7 @@ distributions:
 products:
   - id: docker-build
     name: Dockerfile & Build
-    description: Containerize a project and write, optimize, and harden Dockerfiles and images.
+    description: Containerize a project, write, optimize, and harden Dockerfiles and images, and build and publish them in CI.
     docs: https://docs.docker.com/build/
     repo: https://github.com/docker/buildx
   - id: docker-compose
@@ -123,6 +123,11 @@ skills:
     path: skills/docker-build-strategies
     version: 0.1.3
     status: stable
+  - id: docker-build-ci
+    product: docker-build
+    path: skills/docker-build-ci
+    version: 0.1.0
+    status: experimental
   - id: docker-compose-patterns
     product: docker-compose
     path: skills/docker-compose-patterns

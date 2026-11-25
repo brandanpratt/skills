@@ -13,6 +13,9 @@
 # Docker build strategies
 /skills/docker-build-strategies/ @docker/compose-maintainers @docker/gordon
 
+# Docker build in CI
+/skills/docker-build-ci/ @docker/compose-maintainers @docker/gordon
+
 # Docker Agent skills and evaluations
 /skills/docker-agent-*/ @docker/ai-agent-team @docker/gordon
 

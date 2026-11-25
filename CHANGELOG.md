@@ -10,6 +10,11 @@ for distribution releases.
 
 ### Added
 
+- Added the experimental `docker-build-ci` skill. It builds and publishes
+  container images from GitHub Actions with Docker GitHub Builder or the
+  docker/* actions, covering SHA pinning, least-privilege permissions, registry
+  login, pull request safety, metadata tags, GitHub Actions cache,
+  multi-platform builds, build secrets, and SBOM and provenance attestations.
 - Added the experimental `docker-docs` skill. It answers questions about any
   Docker product from current, cited Docker Docs pages. It uses the Docker docs
   MCP search tool when one is available. Otherwise it falls back to

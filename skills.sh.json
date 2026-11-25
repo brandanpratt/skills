@@ -4,10 +4,11 @@
   "groupings": [
     {
       "title": "Dockerfile & Build",
-      "description": "Containerize a project and write, optimize, and harden Dockerfiles and images.",
+      "description": "Containerize a project, write, optimize, and harden Dockerfiles and images, and build and publish them in CI.",
       "skills": [
         "docker-project-foundations",
-        "docker-build-strategies"
+        "docker-build-strategies",
+        "docker-build-ci"
       ]
     },
     {

@@ -1,0 +1,56 @@
+# Build and publish a multi-platform image with Docker GitHub Builder.
+#
+# Replace `your-org/app` with repositories you can push to, then set:
+#   - repository variable DOCKERHUB_USERNAME
+#   - repository secret   DOCKERHUB_TOKEN (a Docker Hub personal access token)
+# GHCR uses the built-in GITHUB_TOKEN; drop its lines if you publish only to Docker Hub.
+#
+# Pull requests build every platform but never push, and receive no registry
+# credentials from forks. Keep the reusable workflow pinned to a commit SHA and
+# let Dependabot (package-ecosystem: github-actions) propose updates.
+name: image
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - "v*"
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    uses: docker/github-builder/.github/workflows/build.yml@bb1eb9fb69408ac52395fb21f49c6b52d564529a # v1.20.0
+    permissions:
+      contents: read  # fetch the repository content
+      id-token: write # sign attestations and cache entries with GitHub OIDC
+      packages: write # push to ghcr.io
+    with:
+      output: image
+      push: ${{ github.event_name != 'pull_request' }}
+      platforms: linux/amd64,linux/arm64
+      cache: true
+      cache-mode: max
+      cache-scope: app
+      sbom: true
+      set-meta-labels: true
+      meta-images: |
+        your-org/app
+        ghcr.io/your-org/app
+      meta-tags: |
+        type=ref,event=branch
+        type=ref,event=pr
+        type=semver,pattern={{version}}
+        type=semver,pattern={{major}}.{{minor}}
+        type=sha
+    secrets:
+      registry-auths: |
+        - registry: docker.io
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+        - registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}

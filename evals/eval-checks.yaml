@@ -1673,3 +1673,147 @@
       description: MCP setup reference says configuration does not make the tool callable in the running session
       type: file_match
       pattern: "doesn't make the tool callable in the current\\s+session"
+
+# ─── docker-build-ci ────────────────────────────────────────────────────────
+
+- eval: docker-build-ci
+  prompt: "Prompt 1: Publish a multi-platform image"
+  asset: skills/docker-build-ci/assets/github-builder-workflow.yml
+  checks:
+    - id: bc-p1-builder-pinned
+      description: GitHub Builder reusable workflow is pinned to a full commit SHA
+      type: yaml_value_match
+      key: jobs.build.uses
+      pattern: "^docker/github-builder/\\.github/workflows/build\\.yml@[0-9a-f]{40}$"
+
+    - id: bc-p1-top-permissions
+      description: Workflow-level token permissions are read-only
+      type: yaml_value_equals
+      key: permissions.contents
+      value: read
+
+    - id: bc-p1-id-token-on-job
+      description: id-token write is granted only on the build job
+      type: yaml_value_equals
+      key: jobs.build.permissions.id-token
+      value: write
+
+    - id: bc-p1-platforms
+      description: Builds linux/amd64 and linux/arm64
+      type: yaml_value_match
+      key: jobs.build.with.platforms
+      pattern: "linux/amd64.*linux/arm64"
+
+    - id: bc-p1-no-push-on-pr
+      description: Push is disabled for pull_request events
+      type: yaml_value_match
+      key: jobs.build.with.push
+      pattern: "github\\.event_name != 'pull_request'"
+
+    - id: bc-p1-cache
+      description: GitHub Actions cache enabled in max mode
+      type: yaml_value_equals
+      key: jobs.build.with.cache-mode
+      value: max
+
+    - id: bc-p1-immutable-tag
+      description: Tags include a semver or SHA tag, not only latest
+      type: yaml_value_match
+      key: jobs.build.with.meta-tags
+      pattern: "type=(semver|sha)"
+
+    - id: bc-p1-token-from-secret
+      description: Docker Hub password comes from a secret
+      type: file_match
+      pattern: "password: \\$\\{\\{ secrets\\.DOCKERHUB_TOKEN \\}\\}"
+
+- eval: docker-build-ci
+  prompt: "Prompt 2: Pull requests must not publish"
+  asset: skills/docker-build-ci/assets/build-push-workflow.yml
+  checks:
+    - id: bc-p2-all-actions-pinned
+      description: Every action reference is pinned to a full commit SHA
+      type: file_must_not_match
+      pattern: "uses:\\s*[^./\\s][^@\\s]*@(?![0-9a-f]{40}(\\s|$))"
+
+    - id: bc-p2-login-gated
+      description: Registry login is skipped on pull_request
+      type: line_order
+      first_pattern: "if: github\\.event_name != 'pull_request'"
+      second_pattern: "uses: docker/login-action@"
+
+    - id: bc-p2-no-pull-request-target
+      description: Workflow does not use privileged untrusted-code triggers
+      type: file_must_not_match
+      pattern: "pull_request_target|workflow_run"
+
+    - id: bc-p2-current-majors
+      description: build-push-action is on the v7 major
+      type: file_match
+      pattern: "docker/build-push-action@[0-9a-f]{40} # v7\\."
+
+- eval: docker-build-ci
+  prompt: "Prompt 3: Slow CI builds"
+  asset: skills/docker-build-ci/assets/build-push-workflow.yml
+  checks:
+    - id: bc-p3-gha-cache-scoped
+      description: Cache export uses the gha backend with a named scope and max mode
+      type: file_match
+      pattern: "cache-to: type=gha,scope=[a-z0-9-]+,mode=max"
+
+- eval: docker-build-ci
+  prompt: "Prompt 3: Slow CI builds"
+  asset: skills/docker-build-ci/references/caching-in-ci.md
+  checks:
+    - id: bc-p3-scopes-explained
+      description: Caching reference explains per-image scopes
+      type: file_match
+      pattern: "Give each image its own scope"
+
+    - id: bc-p3-cache-mounts-explained
+      description: Caching reference says cache mounts are not exported by any backend
+      type: file_match
+      pattern: "no cache backend exports them"
+
+    - id: bc-p3-write-restrictions
+      description: Caching reference warns against cache write access for untrusted triggers
+      type: file_match
+      pattern: "cache poisoning"
+
+- eval: docker-build-ci
+  prompt: "Prompt 4: Private npm token and supply-chain metadata"
+  asset: skills/docker-build-ci/assets/build-push-workflow.yml
+  checks:
+    - id: bc-p4-sbom
+      description: Push step adds an SBOM attestation
+      type: file_match
+      pattern: "sbom: true"
+
+    - id: bc-p4-max-provenance
+      description: Push step forces max-level provenance
+      type: file_match
+      pattern: "provenance: mode=max"
+
+    - id: bc-p4-no-build-arg-secrets
+      description: No secret is passed through build-args
+      type: file_must_not_match
+      pattern: "build-args:"
+
+- eval: docker-build-ci
+  prompt: "Prompt 4: Private npm token and supply-chain metadata"
+  asset: skills/docker-build-ci/SKILL.md
+  checks:
+    - id: bc-p4-build-args-in-provenance
+      description: SKILL.md explains build arguments are recorded in provenance
+      type: file_match
+      pattern: "Build arguments are recorded in provenance"
+
+    - id: bc-p4-attestations-need-push
+      description: SKILL.md says attestations exist only on pushed images
+      type: file_match
+      pattern: "Attestations exist only on pushed images"
+
+- eval: docker-build-ci
+  prompt: "Prompt 5: Routing boundary — Dockerfile only"
+  skip: true
+  skip_reason: Routing prompt; no asset to check statically
